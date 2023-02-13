@@ -1,28 +1,32 @@
 ﻿using AutoMapper;
+using LeaveManagement.Web.Constants;
 using LeaveManagement.Web.Contracts;
 using LeaveManagement.Web.Data;
 using LeaveManagement.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace LeaveManagement.Web.Controllers
 {
+
+    [Authorize(Roles = Roles.Administrator)]
     public class LeaveTypesController : Controller
-    {        
-		private readonly ILeaveTypeRepository _leaveTypeRepository;
-		private readonly IMapper _mapper;
+    {
+        private readonly ILeaveTypeRepository _leaveTypeRepository;
+        private readonly IMapper _mapper;
 
         public LeaveTypesController(ILeaveTypeRepository leaveTypeRepository, IMapper mapper)
-        {            
-			_leaveTypeRepository = leaveTypeRepository;
-			_mapper = mapper;
+        {
+            _leaveTypeRepository = leaveTypeRepository;
+            _mapper = mapper;
         }
 
         // GET: LeaveTypes
         public async Task<IActionResult> Index()
         {
             var leaveTypes = _mapper.Map<List<LeaveTypeVM>>(await _leaveTypeRepository.GetAllAsync());
-              return View(leaveTypes);
+            return View(leaveTypes);
         }
 
         // GET: LeaveTypes/Details/5
@@ -61,9 +65,9 @@ namespace LeaveManagement.Web.Controllers
             {
                 var leaveType = _mapper.Map<LeaveType>(leaveTypeVM);
 
-				await _leaveTypeRepository.AddAsync(leaveType);
+                await _leaveTypeRepository.AddAsync(leaveType);
 
-				return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index));
             }
             return View(leaveTypeVM);
         }
@@ -71,7 +75,7 @@ namespace LeaveManagement.Web.Controllers
         // GET: LeaveTypes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-   
+
             var leaveType = await _leaveTypeRepository.GetByIdAsync(id);
 
             if (leaveType == null)
@@ -104,7 +108,7 @@ namespace LeaveManagement.Web.Controllers
                     // where someone else is editing the same record
                     // -Db Update concurrency exception
                     var leaveType = _mapper.Map<LeaveType>(leaveTypeVM);
-                    await _leaveTypeRepository.UpdateAsync(leaveType);                    
+                    await _leaveTypeRepository.UpdateAsync(leaveType);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -127,9 +131,9 @@ namespace LeaveManagement.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-           await _leaveTypeRepository.DeleteAsync(id);
+            await _leaveTypeRepository.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
-   
+
     }
 }
