@@ -18,6 +18,11 @@ namespace LeaveManagement.Web.Repositories
 			await _dbContext.SaveChangesAsync();
 			return entity;
 		}
+		public async Task AddRangeAsync(List<T> entities)
+		{
+			await _dbContext.AddRangeAsync(entities);
+			await _dbContext.SaveChangesAsync();
+		}
 
 		public async Task DeleteAsync(int? id)
 		{
@@ -43,7 +48,7 @@ namespace LeaveManagement.Web.Repositories
 
 		public async Task<T?> GetByIdAsync(int? id)
 		{
-			if(id == null)
+			if (id == null)
 			{
 				return null;
 			}
@@ -58,7 +63,7 @@ namespace LeaveManagement.Web.Repositories
 
 		public async Task UpdateAsync(T entity)
 		{
-			_dbContext.Entry(entity).State= EntityState.Modified;
+			_dbContext.Entry(entity).State = EntityState.Modified;
 			await _dbContext.SaveChangesAsync();
 		}
 	}
