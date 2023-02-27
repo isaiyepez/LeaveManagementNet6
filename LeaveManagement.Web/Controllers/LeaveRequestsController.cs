@@ -34,7 +34,8 @@ namespace LeaveManagement.Web.Controllers
             return View(leaveRequests);
         }
 
-        public async Task<IActionResult> MyLeave(int? id)
+		[Authorize(Roles = Roles.User)]
+		public async Task<IActionResult> MyLeave(int? id)
         {
             var leaveRequestViewVM = await _leaveRequestRepository.GetLeaveDetails();
             
@@ -55,7 +56,8 @@ namespace LeaveManagement.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ApproveRequest(int id, bool IsApproved)
+		[Authorize(Roles = Roles.Administrator)]
+		public async Task<IActionResult> ApproveRequest(int id, bool IsApproved)
         {
             try
             {
@@ -68,8 +70,9 @@ namespace LeaveManagement.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: LeaveRequests/Create
-        public async Task<IActionResult> Create()
+		// GET: LeaveRequests/Create
+		[Authorize(Roles = Roles.User)]
+		public async Task<IActionResult> Create()
         {
             var leaveRequestCreateVM = new LeaveRequestCreateVM
             {
@@ -84,14 +87,21 @@ namespace LeaveManagement.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(LeaveRequestCreateVM leaveRequestCreateVM)
+		[Authorize(Roles = Roles.User)]
+		public async Task<IActionResult> Create(LeaveRequestCreateVM leaveRequestCreateVM)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    await _leaveRequestRepository.CreateLeaveRequest(leaveRequestCreateVM);
-                    return RedirectToAction(nameof(MyLeave));
+                    bool isValidRequest = await _leaveRequestRepository.CreateLeaveRequest(leaveRequestCreateVM);
+                    
+                    if (isValidRequest)
+                    {                        
+                        return RedirectToAction(nameof(MyLeave));
+                    }
+
+                    ModelState.AddModelError(string.Empty, "Allocations exceeded, please verify");
                 }
             }
             catch (Exception ex)
