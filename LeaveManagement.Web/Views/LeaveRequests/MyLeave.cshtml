@@ -1,0 +1,154 @@
+﻿@model EmployeeLeaveRequestViewVM
+
+@{
+    ViewData["Title"] = "My Leave";
+}
+<h1>My Leave Allocations</h1>
+
+<div class="card">
+    <div class="card-header">
+        Leave Allocations
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            <div class="row">
+                <div class="col">Leave Name</div>
+                <div class="col">Original Allocation</div>
+                <div class="col">Current Allocation</div>
+            </div>
+        </li>
+
+        @foreach (var allocation in Model.LeaveAllocations)
+        {
+
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col"><h6>@allocation.LeaveType.Name</h6></div>
+                    <div class="col">
+                        <button type="button" class="btn btn-primary">
+                            Allocated Days
+                            <span class="badge bg-secondary">
+                                @allocation.LeaveType.DefaultDays
+                            </span>
+                        </button>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn btn-warning">
+                            Remaining Days
+                            <span class="badge bg-secondary">
+                                @allocation.NumberOfDays
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+</div>
+<br />
+<hr/>
+<h2>Current Requests</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.LeaveRequests[0].StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LeaveRequests[0].EndDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LeaveRequests[0].LeaveType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LeaveRequests[0].DateRequested)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LeaveRequests[0].IsApproved)
+            </th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.LeaveRequests)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EndDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LeaveType.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DateRequested)
+                </td>
+                <td>
+                    @if(item.IsCanceled)
+                    {
+                        <span class="badge bg-secondary">Cancelled</span>
+                    }
+                    else if(item.IsApproved == null)
+                    {
+                      <span class="badge bg-warning">Pending</span>
+                    }
+                    else if (!item.IsApproved.Value)
+                    {
+                        <span class="badge bg-danger">Rejected</span>
+                    } else
+                    {
+                        <span class="badge bg-success">Approved</span>
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsCanceled)
+                </td>               
+                <td>
+                    @*If not cancelled, show the cancel request button*@
+                    @if (!item.IsCanceled && item.IsApproved == null)
+                    {
+                        <button data-id="@item.Id" class="btn btn-danger text-center cancelBtn" type="button"><i class="far fa-trash-alt"></i> Cancel Request</button>                        
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<form id="cancelForm" asp-action="CancelRequest">
+    <input type="hidden" id="leaveTypeId" name="Id" />
+</form>
+
+<div>
+    <a asp-action="Index" class="btn btn-dark"> Back to List</a>
+</div>
+
+
+@section Scripts {
+    <script>
+        $(function(){
+
+            $('.cancelBtn').click(function (e) {
+                swal({
+                    title: "Cancel confirmation",
+                    text: "Are you sure you want to cancel this request?",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true
+                }).then((confirm) => {
+                        if(confirm){
+                            var btn = $(this);
+                            //This id is taken from data-id
+                            var id = btn.data("id");
+                            //Setting the value to the form
+                            $('#leaveTypeId').val(id);
+                        $('#cancelForm').submit();
+                        }
+                    });
+            });
+        });
+    </script>
+}

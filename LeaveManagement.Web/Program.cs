@@ -22,12 +22,15 @@ builder.Services.AddDefaultIdentity<Employee>(options => options.SignIn.RequireC
 	.AddEntityFrameworkStores<ApplicationDbContext>();
 //Auto Mapper
 builder.Services.AddAutoMapper(typeof(MapperConfig));
-
+//HTTP Context Accessor
+builder.Services.AddHttpContextAccessor();
 //Generic Repo
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 //Other Repos
 builder.Services.AddScoped<ILeaveTypeRepository, LeaveTypeRepository>();
 builder.Services.AddScoped<ILeaveAllocationRepository, LeaveAllocationRepository>();
+builder.Services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
+
 
 builder.Services.AddControllersWithViews();
 
