@@ -1,11 +1,12 @@
-using LeaveManagement.Web.Configurations;
-using LeaveManagement.Web.Contracts;
-using LeaveManagement.Web.Data;
-using LeaveManagement.Web.Repositories;
+using LeaveManagement.BusinessLogic.Configurations;
+using LeaveManagement.BusinessLogic.Contracts;
+using LeaveManagement.Data;
+using LeaveManagement.BusinessLogic.Repositories;
 using LeaveManagement.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,13 +25,16 @@ builder.Services.AddDefaultIdentity<Employee>(options => options.SignIn.RequireC
 builder.Services.AddAutoMapper(typeof(MapperConfig));
 //HTTP Context Accessor
 builder.Services.AddHttpContextAccessor();
+//SeriLog
+builder.Host.UseSerilog((ctx, lc) => 
+	lc.WriteTo.Console()
+	.ReadFrom.Configuration(ctx.Configuration));
 //Generic Repo
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 //Other Repos
 builder.Services.AddScoped<ILeaveTypeRepository, LeaveTypeRepository>();
 builder.Services.AddScoped<ILeaveAllocationRepository, LeaveAllocationRepository>();
 builder.Services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
-
 
 builder.Services.AddControllersWithViews();
 

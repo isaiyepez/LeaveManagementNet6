@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using LeaveManagement.Web.Constants;
-using LeaveManagement.Web.Contracts;
-using LeaveManagement.Web.Data;
-using LeaveManagement.Web.Models;
+using LeaveManagement.Common.Constants;
+using LeaveManagement.BusinessLogic.Contracts;
+using LeaveManagement.Data;
+using LeaveManagement.Common.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -104,14 +104,20 @@ namespace LeaveManagement.Web.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+			var leaveType = await _leaveTypeRepository.GetByIdAsync(id);
+            if (leaveType == null)
+            {
+                return NotFound();
+            }
+
+			if (ModelState.IsValid)
             {
                 try
                 {
                     // The purpose of try-catch is to handle the scenario
                     // where someone else is editing the same record
-                    // -Db Update concurrency exception
-                    var leaveType = _mapper.Map<LeaveType>(leaveTypeVM);
+                    // -Db Update concurrency exception                                          
+                    _mapper.Map(leaveTypeVM, leaveType);
                     await _leaveTypeRepository.UpdateAsync(leaveType);
                 }
                 catch (DbUpdateConcurrencyException)
