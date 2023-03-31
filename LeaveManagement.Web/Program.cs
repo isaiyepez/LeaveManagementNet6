@@ -38,6 +38,9 @@ builder.Services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
 
 builder.Services.AddControllersWithViews();
 
+//Allow CORS
+builder.Services.AddCors();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -56,6 +59,13 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// global cors policy
+app.UseCors(x => x
+	.AllowAnyMethod()
+	.AllowAnyHeader()
+	.SetIsOriginAllowed(origin => true) // allow any origin
+	.AllowCredentials()); // allow credentials
 
 app.UseAuthentication();
 app.UseAuthorization();
